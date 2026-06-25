@@ -1,0 +1,36 @@
+name: Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Compilar e empacotar
+        run: mvn --batch-mode --update-snapshots clean package
+
+      - name: Publicar JAR como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: assinador-icp-brasil-jar
+          path: target/assinador-icp-brasil-*.jar
+          if-no-files-found: error
